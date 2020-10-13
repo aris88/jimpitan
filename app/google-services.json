@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "648718904282",
+    "firebase_url": "https://jimpitan-a3c60.firebaseio.com",
+    "project_id": "jimpitan-a3c60",
+    "storage_bucket": "jimpitan-a3c60.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648718904282:android:9cb7c6d4b101fb9e276ee3",
+        "android_client_info": {
+          "package_name": "com.example.jimpitan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648718904282-j6b7soh9etfjgoj3s9k5lmvb5g0k9hlo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1OSjN_LFFKkFmrqkwOOnIJ3_iohp6hWI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648718904282-j6b7soh9etfjgoj3s9k5lmvb5g0k9hlo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
