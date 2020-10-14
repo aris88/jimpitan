@@ -1,81 +1,69 @@
 package com.example.jimpitan
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ListView
 import android.widget.Toast
-import com.google.firebase.database.*
+import androidx.appcompat.app.AppCompatActivity
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity() {
 
-//    private lateinit var etNama : EditText
-//    private lateinit var btnSave : Button
+    lateinit var providers : List<AuthUI.IdpConfig>
 
-    private lateinit var ref: DatabaseReference
-    private lateinit var wargaList: MutableList<Warga>
+    val RC_SIGN_IN = 9001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        ref = FirebaseDatabase.getInstance().getReference("warga")
+        //inisialisasi
+       providers = Arrays.asList<AuthUI.IdpConfig>(
+           AuthUI.IdpConfig.EmailBuilder().build(),
+           AuthUI.IdpConfig.PhoneBuilder().build(),
+           AuthUI.IdpConfig.GoogleBuilder().build()
+       )
 
-//        etNama = findViewById(R.id.etNama)
-//        btnSave = findViewById(R.id.btnSave)
+        showSignInOptions()
 
-        btnSave.setOnClickListener(this)
-
-        wargaList = mutableListOf()
-
-        ref.addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(p0: DataSnapshot) {
-                if (p0.exists()){
-                    wargaList.clear()
-                    for (h in p0.children){
-                        val warga = h.getValue(Warga::class.java)
-                        if (warga != null) {
-                            wargaList.add(warga)
-                        }
-                    }
-
-                    val adapater = WargaAdapter(applicationContext, R.layout.item_warga, wargaList)
-                    lvWarga.adapter = adapater
+        btnLogout.setOnClickListener{
+            AuthUI.getInstance().signOut(this)
+                .addOnCompleteListener {
+                    btnLogout.isEnabled = false
+                    showSignInOptions()
                 }
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-
-            }
-
-        })
+                .addOnFailureListener {
+                    e -> Toast.makeText(this,e.message,Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
-    override fun onClick(p0: View?) {
-        saveData()
-    }
 
-    private fun saveData() {
-        val nama = etNama.text.toString().trim()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        if (nama.isEmpty()){
-            etNama.error = "Isi Nama"
-            return
-        }
+        if (requestCode == RC_SIGN_IN){
+            val response = IdpResponse.fromResultIntent(data)
 
-
-
-        val wargaId = ref.push().key
-
-        val warga = Warga(wargaId,nama)
-
-        if (wargaId != null) {
-            ref.child(wargaId).setValue(warga).addOnCompleteListener {
-                Toast.makeText(applicationContext, "Data berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+            if (resultCode == Activity.RESULT_OK){
+                val user = FirebaseAuth.getInstance().currentUser
+                Toast.makeText(this, "phone: "+user!!.phoneNumber+" /email: "+ user.email, Toast.LENGTH_SHORT).show()
+                btnLogout.isEnabled = true
+            }
+            else{
+                Toast.makeText(this, ""+response!!.error!!.message, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun showSignInOptions() {
+        startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder()
+            .setAvailableProviders(providers)
+            .setTheme(R.style.MyTheme)
+            .build(), RC_SIGN_IN)
     }
 }
